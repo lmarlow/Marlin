@@ -9,6 +9,8 @@ DISTDATE=$(date '+%Y-%m-%d %H:%M')
 BRANCH=$(git -C "${DIR}" symbolic-ref -q --short HEAD)
 VERSION=$(git -C "${DIR}" describe --tags --first-parent 2>/dev/null)
 
+SOURCE_CODE_URL=$(git config --get remote.$(git config --get branch.$BRANCH.remote).url)
+
 if [ -z "${BRANCH}" ]; then
   BRANCH=$(echo "${TRAVIS_BRANCH}")
 fi
@@ -18,7 +20,7 @@ if [ -z "${VERSION}" ]; then
 fi
 
 SHORT_BUILD_VERSION=$(echo "${BRANCH}")
-DETAILED_BUILD_VERSION=$(echo "${BRANCH}-${VERSION}")
+DETAILED_BUILD_VERSION=$(echo "${VERSION}")
 
 # Gets some misc options from their defaults
 DEFAULT_MACHINE_UUID=$(awk -F'"' \
@@ -27,10 +29,13 @@ MACHINE_NAME=$(awk -F'"' \
   '/#define MACHINE_NAME/{ print $2 }' < "${DIR}/Version.h")
 PROTOCOL_VERSION=$(awk -F'"' \
   '/#define PROTOCOL_VERSION/{ print $2 }' < "${DIR}/Version.h")
-SOURCE_CODE_URL=$(awk -F'"' \
-  '/#define SOURCE_CODE_URL/{ print $2 }' < "${DIR}/Version.h")
 WEBSITE_URL=$(awk -F'"' \
   '/#define WEBSITE_URL/{ print $2 }' < "${DIR}/Version.h")
+
+REQ_CONFIG_H_VERSION=$(awk \
+  '/#define REQUIRED_CONFIGURATION_H_VERSION/{ print $3 }' < "${DIR}/Version.h")
+REQ_CONFIG_ADV_H_VERSION=$(awk \
+  '/#define REQUIRED_CONFIGURATION_ADV_H_VERSION/{ print $3 }' < "${DIR}/Version.h")
 
 cat > "${DIR}/_Version.h" <<EOF
 /**
@@ -46,6 +51,9 @@ cat > "${DIR}/_Version.h" <<EOF
 
 #define SHORT_BUILD_VERSION "${SHORT_BUILD_VERSION}"
 #define DETAILED_BUILD_VERSION "${DETAILED_BUILD_VERSION}"
+
+#define REQUIRED_CONFIGURATION_H_VERSION $REQ_CONFIG_H_VERSION
+#define REQUIRED_CONFIGURATION_ADV_H_VERSION $REQ_CONFIG_ADV_H_VERSION
 
 #define PROTOCOL_VERSION "${PROTOCOL_VERSION}"
 #define MACHINE_NAME "${MACHINE_NAME}"
