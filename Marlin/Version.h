@@ -26,6 +26,7 @@
  * directive USE_AUTOMATIC_VERSIONING.
  */
 
+#define USE_AUTOMATIC_VERSIONING
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
 
   #include "_Version.h"
